@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 require_once "./connect.php";
 require_once "./Utilities.php";
 
@@ -23,6 +20,7 @@ $names = $_POST["name"];
 $contents = $_POST["content"];
 $categories = $_POST["category"];
 $styles = $_POST["style"];
+$colors = $_POST["color"];
 $count = count($names);
 $countCategory = count($categories);
 
@@ -68,7 +66,7 @@ for($i = 0; $i < $countFile ;$i++){
 
 
 $user_id = 1; 
-$sql = "INSERT INTO `products` ( `user_id`,`name`,`category_id`,`description` ,`price`,`quantity`,`style`) VALUES (?, ?, ?, ?,?,?,?)";
+$sql = "INSERT INTO `products` ( `user_id`,`name`,`category_id`,`description` ,`price`,`quantity`,`style`,`color`) VALUES (?, ?, ?, ?,  ?,?,?,?)";
 
 try {
   $stmt = $pdo->prepare($sql);
@@ -80,9 +78,11 @@ try {
     $style = htmlspecialchars($styles[$i]);
     $price = floatval($_POST["price"][$i] ?? 0);
     $quantity = intval($_POST["quantity"][$i] ?? 0);
+    $color = htmlspecialchars($_POST["color"][$i] ?? 0);
+
 
     // 插入商品主表
-    $stmt->execute([$user_id, $name, $category_id, $description,$price,$quantity,$style]);
+    $stmt->execute([$user_id, $name, $category_id, $description,$price,$quantity,$style,$color]);
 
     // 取得剛剛插入的商品 ID
     $product_id = $pdo->lastInsertId();

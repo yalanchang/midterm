@@ -9,40 +9,41 @@ require_once "./connect.php";
 
 $cid = intval($_GET["cid"] ?? 0);
 
-if($cid == 0){
-  $cateSQL = "";
-  $values = [];
-}else{
-  $cateSQL = "p.`category_id` = :cid AND";
-  $values = ["cid"=>$cid];
-};
+if ($cid == 0) {
+    $cateSQL = "";
+    $values = [];
+} else {
+    $cateSQL = "p.`category_id` = :cid AND";
+    $values = ["cid" => $cid];
+}
+;
 
 $search = $_GET["search"] ?? "";
 $searchType = $_GET["qType"] ?? "";
-if($search == ""){
-  $searchSQL = "";
-}else{
-  $searchSQL = "p.`$searchType` LIKE :search AND";
-  $values["search"] = "%$search%";
+if ($search == "") {
+    $searchSQL = "";
+} else {
+    $searchSQL = "p.`$searchType` LIKE :search AND";
+    $values["search"] = "%$search%";
 }
 
 $date1 = $_GET["date1"] ?? "";
 $date2 = $_GET["date2"] ?? "";
 $dateSQL = "";
-if($searchType == "create_at"){
-  if($date1 != "" && $date2 !=""){
-    $startDateTime = "{$date1} 00:00:00";
-    $endDateTime = "{$date2} 23:59:59";
-  }elseif($date1 == "" && $date2 != ""){
-    $startDateTime = "{$date2} 00:00:00";
-    $endDateTime = "{$date2} 23:59:59";
-  }elseif($date2 == "" && $date1 != ""){
-    $startDateTime = "{$date1} 00:00:00";
-    $endDateTime = "{$date1} 23:59:59";
-  }
-  $dateSQL = "(p.`create_at` BETWEEN :startDateTime AND :endDateTime) AND";
-  $values["startDateTime"] = $startDateTime;
-  $values["endDateTime"] = $endDateTime;
+if ($searchType == "create_at") {
+    if ($date1 != "" && $date2 != "") {
+        $startDateTime = "{$date1} 00:00:00";
+        $endDateTime = "{$date2} 23:59:59";
+    } elseif ($date1 == "" && $date2 != "") {
+        $startDateTime = "{$date2} 00:00:00";
+        $endDateTime = "{$date2} 23:59:59";
+    } elseif ($date2 == "" && $date1 != "") {
+        $startDateTime = "{$date1} 00:00:00";
+        $endDateTime = "{$date1} 23:59:59";
+    }
+    $dateSQL = "(p.`create_at` BETWEEN :startDateTime AND :endDateTime) AND";
+    $values["startDateTime"] = $startDateTime;
+    $values["endDateTime"] = $endDateTime;
 }
 
 $deleteSQL = "p.`is_valid` = 1";  // 只有還存在的商品
@@ -66,22 +67,22 @@ $sqlAll = "SELECT p.*, c.category_name
 $sqlCate = "SELECT * FROM `products_category`";
 
 try {
-  $stmt = $pdo->prepare($sql);
-  $stmt->execute($values);
-  $rows = $stmt->fetchAll();
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($values);
+    $rows = $stmt->fetchAll();
 
-  $stmtCate = $pdo->prepare($sqlCate);
-  $stmtCate->execute();
-  $rowsCate = $stmtCate->fetchAll( PDO::FETCH_ASSOC);
+    $stmtCate = $pdo->prepare($sqlCate);
+    $stmtCate->execute();
+    $rowsCate = $stmtCate->fetchAll(PDO::FETCH_ASSOC);
 
 
 
-  $stmtAll = $pdo->prepare($sqlAll);
-  $stmtAll->execute($values);
-  $msgLength = $stmtAll->rowCount();
+    $stmtAll = $pdo->prepare($sqlAll);
+    $stmtAll->execute($values);
+    $msgLength = $stmtAll->rowCount();
 } catch (PDOException $e) {
-  echo "錯誤: {$e->getMessage()}";
-  exit;
+    echo "錯誤: {$e->getMessage()}";
+    exit;
 }
 
 $totalPage = ceil($msgLength / $perPage);
@@ -99,8 +100,11 @@ $totalPage = ceil($msgLength / $perPage);
     <title>商品列表</title>
 
     <!-- Custom fonts for this template -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet"
+        type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="https://cdn.jsdelivr.net/npm/startbootstrap-sb-admin-2@4.1.4/css/sb-admin-2.min.css" rel="stylesheet">
@@ -110,17 +114,30 @@ $totalPage = ceil($msgLength / $perPage);
 
     <style>
         .bg-gradient-primary {
+
+            background-image: url("./bar-bg.jpg") !important;
             background-color: rgb(113, 154, 139) !important;
-            background-image: none !important;
+            background-position: calc(100%) calc(100% + 10px) !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            mix-blend-mode: multiply !important;
         }
+
+        .logo {
+            width: 63%;
+        }
+
         .btn-primary {
             background-color: rgb(113, 154, 139) !important;
             border-color: rgb(113, 154, 139) !important;
         }
+
         .btn-primary:hover {
             background-color: #a0a599 !important;
             border-color: #a0a599 !important;
         }
+
         .nav-link {
             display: inline-block;
             padding: 0.5rem 1rem;
@@ -130,12 +147,14 @@ $totalPage = ceil($msgLength / $perPage);
             text-decoration: none;
             transition: all 0.2s;
         }
+
         .category-nav {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 20px;
         }
+
         .category-nav a {
             display: inline-block;
             padding: 8px 16px;
@@ -145,63 +164,164 @@ $totalPage = ceil($msgLength / $perPage);
             border-radius: 30px;
             transition: all 0.3s ease;
         }
+
         .category-nav a:hover {
             background-color: rgb(113, 154, 139);
             color: white;
             border-color: rgb(113, 154, 139);
         }
+
         .category-nav a.active {
             background-color: rgb(113, 154, 139);
             color: white;
             border-color: rgb(113, 154, 139);
         }
-        /* 分頁樣式 */
-        .pagination {
-            margin-bottom: 0;
-        }
-        .page-item.active .page-link {
-            background-color: rgb(113, 154, 139);
-            border-color: rgb(113, 154, 139);
-        }
-        .page-link {
-            color: rgb(113, 154, 139);
-            border: 1px solid #dee2e6;
-            padding: 0.5rem 0.75rem;
-            transition: all 0.3s ease;
-        }
-        .page-link:hover {
-            color: #a0a599;
-            background-color: #e9ecef;
-            border-color: #dee2e6;
-        }
-        .page-item.disabled .page-link {
-            color: #6c757d;
-            pointer-events: none;
-            background-color: #fff;
-            border-color: #dee2e6;
-        }
-        /* 表格樣式 */
+
+        .table td,
         .table th {
-            white-space: nowrap;
             vertical-align: middle;
+            text-align: center;
         }
-        .table td {
-            vertical-align: middle;
-        }
-        .description-cell {
+
+        .table td.description {
             max-width: 200px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            text-align: left;
         }
-        .action-buttons {
+
+        .table td.style,
+        .table td.quantity {
+            min-width: 120px;
+        }
+
+        .btn-group-horizontal {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+
+        .table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .table td {
+            white-space: normal;
+            /* 允許文字換行 */
+            overflow: visible;
+            /* 讓內容完全顯示 */
+            text-overflow: unset;
+            /* 移除文字截斷效果 */
+        }
+
+        .table td.description {
+            white-space: normal;
+        }
+
+        .card-body {
+            overflow-x: hidden;
+        }
+
+        .pagination .page-link {
+            color: rgb(113, 154, 139);
+            /* 主題顏色 */
+            border: 1px solid rgb(113, 154, 139);
+            /* 主題邊框顏色 */
+        }
+
+        .pagination .page-link:hover {
+            background-color: rgb(113, 154, 139);
+            /* 主題背景顏色 */
+            color: white;
+            /* 滑鼠懸停時文字顏色 */
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: rgb(113, 154, 139);
+            /* 主題背景顏色 */
+            border-color: rgb(113, 154, 139);
+            /* 主題邊框顏色 */
+            color: white;
+            /* 文字顏色 */
+        }
+
+
+        .btn-group-horizontal {
             display: flex;
             gap: 5px;
+            /* 調整按鈕之間的間距 */
+            justify-content: center;
+            margin: 0 10px;
+            /* 調整按鈕與邊框的距離 */
+
         }
-        .action-buttons .btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
+
+        .table-responsive {
+            overflow-x: unset;
+            width: 100%;
         }
+
+        .table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+      
+        /* 圖片 */
+        .table th:nth-child(1),
+        .table td:nth-child(1) {
+            width: 16%;
+        }
+
+        /* 名稱 */
+        .table th:nth-child(2),
+        .table td:nth-child(2) {
+            width: 21%;
+        }
+
+         /* 商品描述 */
+        .table th:nth-child(3),
+        .table td:nth-child(3) {
+            width: 24%;
+        }
+
+       /* 風格 */
+        .table th:nth-child(4),
+        .table td:nth-child(4) {
+            width: 11%;
+        }
+
+        /* 顏色 */
+        .table th:nth-child(5),
+        .table td:nth-child(5) {
+            width: 8%;
+        }
+
+        /* 分類 */
+        .table th:nth-child(6),
+        .table td:nth-child(6) {
+            width: 6%;
+        }
+
+        /* 數量 */
+        .table th:nth-child(7),
+        .table td:nth-child(7) {
+            width: 6%;
+        }
+
+         /* 價格 */
+        .table th:nth-child(8),
+        .table td:nth-child(8) {
+            width: 8%;
+        }
+
+       
+        .table th:nth-child(9),
+        .table td:nth-child(9) {
+            width: 9%;
+        }
+
+     
     </style>
 </head>
 
@@ -215,10 +335,7 @@ $totalPage = ceil($msgLength / $perPage);
 
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-                <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-laugh-wink"></i>
-                </div>
-                <div class="sidebar-brand-text mx-3">商品管理系統</div>
+                <img src="./Oakly-logo.png" alt="Oakly" class="logo">
             </a>
 
             <!-- Divider -->
@@ -344,7 +461,7 @@ $totalPage = ceil($msgLength / $perPage);
                         </button>
                     </form>
 
-                 
+
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
@@ -440,8 +557,7 @@ $totalPage = ceil($msgLength / $perPage);
                                 </h6>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_1.svg"
-                                            alt="...">
+                                        <img class="rounded-circle" src="img/undraw_profile_1.svg" alt="...">
                                         <div class="status-indicator bg-success"></div>
                                     </div>
                                     <div class="font-weight-bold">
@@ -452,8 +568,7 @@ $totalPage = ceil($msgLength / $perPage);
                                 </a>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_2.svg"
-                                            alt="...">
+                                        <img class="rounded-circle" src="img/undraw_profile_2.svg" alt="...">
                                         <div class="status-indicator"></div>
                                     </div>
                                     <div>
@@ -464,8 +579,7 @@ $totalPage = ceil($msgLength / $perPage);
                                 </a>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_3.svg"
-                                            alt="...">
+                                        <img class="rounded-circle" src="img/undraw_profile_3.svg" alt="...">
                                         <div class="status-indicator bg-warning"></div>
                                     </div>
                                     <div>
@@ -497,8 +611,7 @@ $totalPage = ceil($msgLength / $perPage);
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                                <img class="img-profile rounded-circle"
-                                    src="img/undraw_profile.svg">
+                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -531,16 +644,13 @@ $totalPage = ceil($msgLength / $perPage);
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
-                    <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">商品列表</h1>
-                    <p class="mb-4">以下是所有商品的詳細資訊。</p>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
                             <h6 class="m-0 font-weight-bold " style="color:rgb(113, 154, 139);">商品資訊</h6>
                             <a href="./add.php" class="btn btn-primary btn-sm">
-                                <i class="fa-solid fa-plus" style="color:#fff;"></i> 新增商品
+                                <i class="fa-solid fa-plus"></i>
                             </a>
                         </div>
                         <div class="card-body">
@@ -549,13 +659,20 @@ $totalPage = ceil($msgLength / $perPage);
                                 <div class="row ">
                                     <div class="col-md-3 p-1">
                                         <select name="qType" class="form-control">
-                                            <option value="name" <?= $searchType == "name" ? "selected" : "" ?>>商品名稱</option>
+                                            <option value="name" <?= $searchType == "name" ? "selected" : "" ?>>商品名稱
+                                            </option>
                                             <option value="description" <?= $searchType == "description" ? "selected" : "" ?>>商品描述</option>
                                             <option value="style" <?= $searchType == "style" ? "selected" : "" ?>>風格</option>
+                                            <option value="color" <?= $searchType == "color" ? "selected" : "" ?>>顏色</option>
+                                            <option value="create_at" <?= $searchType == "create_at" ? "selected" : "" ?>>
+                                                建立日期</option>
+
+
                                         </select>
                                     </div>
                                     <div class="col-md-2 p-1">
-                                        <input type="text" name="search" class="form-control" value="<?= $search ?>" placeholder="請輸入關鍵字">
+                                        <input type="text" name="search" class="form-control" value="<?= $search ?>"
+                                            placeholder="請輸入關鍵字">
                                     </div>
                                     <div class="col-md-2 p-1">
                                         <input type="date" name="date1" class="form-control" value="<?= $date1 ?>">
@@ -564,26 +681,26 @@ $totalPage = ceil($msgLength / $perPage);
                                         <input type="date" name="date2" class="form-control" value="<?= $date2 ?>">
                                     </div>
                                     <div class="ms-auto p-1">
-                                    <button type="submit" class="btn btn-primary ">
+                                        <button type="submit" class="btn btn-primary ">
                                             <i class="fas fa-search"></i> 搜尋
                                         </button>
                                         <a href="./productlist.php" class="btn btn-secondary ">
                                             <i class="fas fa-redo"></i> 重置
                                         </a>
-                                        </div>
+                                    </div>
                                 </div>
-                                        
-                                    
-                                
+
+
+
                             </form>
 
                             <!-- Category Navigation -->
                             <div class="category-nav">
-                                <a href="./productlist.php" class="<?= $cid == 0 ? "active" : ""?>">全部</a>
-                                <?php foreach($rowsCate as $rowCate): ?>
-                                    <a href="./productlist.php?cid=<?=$rowCate["category_id"]?>" 
-                                       class="<?= $cid == $rowCate["category_id"] ? "active" : ""?>">
-                                        <?=$rowCate["category_name"]?>
+                                <a href="./productlist.php" class="<?= $cid == 0 ? "active" : "" ?>">全部</a>
+                                <?php foreach ($rowsCate as $rowCate): ?>
+                                    <a href="./productlist.php?cid=<?= $rowCate["category_id"] ?>"
+                                        class="<?= $cid == $rowCate["category_id"] ? "active" : "" ?>">
+                                        <?= $rowCate["category_name"] ?>
                                     </a>
                                 <?php endforeach; ?>
                             </div>
@@ -596,6 +713,7 @@ $totalPage = ceil($msgLength / $perPage);
                                             <th>名稱</th>
                                             <th>商品描述</th>
                                             <th>風格</th>
+                                            <th>顏色</th>
                                             <th>分類</th>
                                             <th>數量</th>
                                             <th>價格</th>
@@ -603,62 +721,116 @@ $totalPage = ceil($msgLength / $perPage);
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach($rows as $row): ?>
-                                        <?php
-                                        $product_id = $row['id'];
-                                        $stmtImg = $pdo->prepare("SELECT img FROM product_img WHERE product_id = ? LIMIT 1");
-                                        $stmtImg->execute([$product_id]);
-                                        $imgFileName = $stmtImg->fetchColumn();
-                                        ?>
-                                        <tr>
-                                            <td>
-                                                <?php if($imgFileName): ?>
-                                                    <?php if(strpos($imgFileName, 'http') === 0): ?>
-                                                        <img src="<?php echo htmlspecialchars($imgFileName); ?>" alt="商品圖片" style="max-width:100px; height:auto">
+                                        <?php foreach ($rows as $index => $row): ?>
+                                            <?php
+                                            $product_id = $row['id'];
+                                            $stmtImg = $pdo->prepare("SELECT img FROM product_img WHERE product_id = ? LIMIT 1");
+                                            $stmtImg->execute([$product_id]);
+                                            $imgFileName = $stmtImg->fetchColumn();
+                                            ?>
+                                            <tr>
+                                                <td>
+                                                    <?php if ($imgFileName): ?>
+                                                        <?php if (strpos($imgFileName, 'http') === 0): ?>
+                                                            <img src="<?php echo htmlspecialchars($imgFileName); ?>" alt="商品圖片"
+                                                                style="max-width:100px; height:auto">
+                                                        <?php else: ?>
+                                                            <img src="./uploads/<?php echo htmlspecialchars($imgFileName); ?>"
+                                                                alt="商品圖片" style="max-width:100px; height:auto">
+                                                        <?php endif; ?>
                                                     <?php else: ?>
-                                                        <img src="./uploads/<?php echo htmlspecialchars($imgFileName); ?>" alt="商品圖片" style="max-width:100px; height:auto">
+                                                        <span>無圖片</span>
                                                     <?php endif; ?>
-                                                <?php else: ?>
-                                                    <span>無圖片</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?=$row["name"]?></td>
-                                            <td class="description-cell"><?=$row["description"]?></td>
-                                            <td><?=$row["style"]?></td>
-                                            <td><?=$row["category_name"]?></td>
-                                            <td><?=$row["quantity"]?></td>
-                                            <td><?='$'.$row["price"]?></td>
-                                            <td>
-                                                <div class="action-buttons">
-                                                    <button class="btn btn-sm btn-primary btn-del" data-id="<?=$row["id"]?>">刪除</button>
-                                                    <a href="./Update.php?id=<?=$row["id"]?>" class="btn btn-sm btn-primary">編輯</a>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                                </td>
+                                                <td><?= $row["name"] ?></td>
+                                                <td class="description"><?= $row["description"] ?></td>
+                                                <td class="style"><?= $row["style"] ?></td>
+                                                <td class="color"><?= $row["color"] ?></td>
+                                                <td><?= $row["category_name"] ?></td>
+                                                <td class="quantity"><?= $row["quantity"] ?></td>
+                                                <td><?= '$' . $row["price"] ?></td>
+                                                <td>
+                                                    <div class="btn-group-horizontal ">
+                                                        <button class="btn btn-sm btn-primary btn-del"
+                                                            data-id="<?= $row["id"] ?>"><i
+                                                                class="fa-solid fa-trash"></i></button>
+                                                        <a href="./Update.php?id=<?= $row["id"] ?>"
+                                                            class="btn btn-sm btn-primary"><i
+                                                                class="fa-solid fa-pen"></i></a>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                         <?php endforeach; ?>
                                     </tbody>
                                 </table>
                             </div>
-                            
+
                             <!-- Pagination -->
-                            <div class="d-flex justify-content-between align-items-center mt-4" >
-                                <div>共 <?=$msgLength?> 筆資料</div>
-                                <nav aria-label="Page navigation"  >
-                                    <ul class="pagination justify-content-end mb-0" >
-                                        <?php for($i=1; $i<=$totalPage; $i++): ?>
-                                            <li class="page-item <?= $page == $i ? "active" : "" ?>" >
+                            <div class="text-right mt-0" style="min-width: 150px;"> 共 <?= $msgLength ?> 筆資料</div>
+
+                            <div class="d-flex justify-content-between align-items-center ">
+                                <nav aria-label="Page navigation" class="flex-grow-1">
+                                    <ul class="pagination justify-content-center mb-0">
+                                        <?php
+                                        $maxVisiblePages = 5; // 最多顯示的分頁按鈕數量
+                                        $startPage = max(1, $page - floor($maxVisiblePages / 2));
+                                        $endPage = min($totalPage, $startPage + $maxVisiblePages - 1);
+
+                                        // 上一頁按鈕
+                                        if ($page > 1): ?>
+                                            <li class="page-item">
                                                 <?php
-                                                    $link = "./productlist.php?page={$i}";
-                                                    if($cid > 0) $link .= "&cid={$cid}";
-                                                    if($searchType != "") $link .= "&search={$search}&qType={$searchType}";
-                                                    if($date1 != "")  $link .= "&date1={$date1}";
-                                                    if($date2 != "")  $link .= "&date2={$date2}";
+                                                $prevLink = "./productlist.php?page=" . ($page - 1);
+                                                if ($cid > 0)
+                                                    $prevLink .= "&cid={$cid}";
+                                                if ($searchType != "")
+                                                    $prevLink .= "&search={$search}&qType={$searchType}";
+                                                if ($date1 != "")
+                                                    $prevLink .= "&date1={$date1}";
+                                                if ($date2 != "")
+                                                    $prevLink .= "&date2={$date2}";
                                                 ?>
-                                                <a class="page-link" href="<?=$link?>"><?= $i?></a>
+                                                <a class="page-link" href="<?= $prevLink ?>">上一頁</a>
+                                            </li>
+                                        <?php endif; ?>
+
+                                        <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                                            <li class="page-item <?= $page == $i ? "active" : "" ?>">
+                                                <?php
+                                                $link = "./productlist.php?page={$i}";
+                                                if ($cid > 0)
+                                                    $link .= "&cid={$cid}";
+                                                if ($searchType != "")
+                                                    $link .= "&search={$search}&qType={$searchType}";
+                                                if ($date1 != "")
+                                                    $link .= "&date1={$date1}";
+                                                if ($date2 != "")
+                                                    $link .= "&date2={$date2}";
+                                                ?>
+                                                <a class="page-link" href="<?= $link ?>"><?= $i ?></a>
                                             </li>
                                         <?php endfor; ?>
+
+                                        <!-- 下一頁按鈕 -->
+                                        <?php if ($page < $totalPage): ?>
+                                            <li class="page-item">
+                                                <?php
+                                                $nextLink = "./productlist.php?page=" . ($page + 1);
+                                                if ($cid > 0)
+                                                    $nextLink .= "&cid={$cid}";
+                                                if ($searchType != "")
+                                                    $nextLink .= "&search={$search}&qType={$searchType}";
+                                                if ($date1 != "")
+                                                    $nextLink .= "&date1={$date1}";
+                                                if ($date2 != "")
+                                                    $nextLink .= "&date2={$date2}";
+                                                ?>
+                                                <a class="page-link" href="<?= $nextLink ?>">下一頁</a>
+                                            </li>
+                                        <?php endif; ?>
                                     </ul>
                                 </nav>
+
                             </div>
                         </div>
                     </div>
@@ -673,7 +845,7 @@ $totalPage = ceil($msgLength / $perPage);
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; 商品管理系統 2024</span>
+                        <span>Copyright &copy; Oak!y 2025</span>
                     </div>
                 </div>
             </footer>
@@ -726,7 +898,7 @@ $totalPage = ceil($msgLength / $perPage);
 
     <!-- Page level custom scripts -->
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#dataTable').DataTable({
                 "paging": false,  // 禁用 DataTables 的分页
                 "searching": false,  // 禁用搜索
@@ -738,13 +910,13 @@ $totalPage = ceil($msgLength / $perPage);
 
     <script>
         const btnDels = document.querySelectorAll(".btn-del");
-        btnDels.forEach(function(btn){
+        btnDels.forEach(function (btn) {
             btn.addEventListener("click", delConfirm);
         });
 
-        function delConfirm(event){
+        function delConfirm(event) {
             const btn = event.target;
-            if(window.confirm("確定刪除?")){
+            if (window.confirm("確定刪除?")) {
                 window.location.href = `./doDelete.php?id=${btn.dataset.id}`;
             }
         }
@@ -752,4 +924,3 @@ $totalPage = ceil($msgLength / $perPage);
 </body>
 
 </html>
-
